@@ -1,0 +1,34 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+bin/
+
+# Go
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Project meta (dev only)
+.core/
+planning/
+tester/
+
+# Environment
+.env
+
+# Uploads
+uploads/*
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,831 @@
+basePath: /api/v1
+definitions:
+  github_com_satria_newproject_internal_services.ChangePasswordRequest:
+    properties:
+      new_password:
+        maxLength: 100
+        minLength: 8
+        type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  github_com_satria_newproject_internal_services.CreateCommentRequest:
+    properties:
+      content:
+        minLength: 1
+        type: string
+      parent_id:
+        description: optional UUID string for nested replies
+        type: string
+    required:
+    - content
+    type: object
+  github_com_satria_newproject_internal_services.CreateThreadRequest:
+    properties:
+      content:
+        minLength: 10
+        type: string
+      image_url:
+        type: string
+      title:
+        maxLength: 255
+        minLength: 5
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  github_com_satria_newproject_internal_services.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  github_com_satria_newproject_internal_services.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  github_com_satria_newproject_internal_services.RegisterRequest:
+    properties:
+      email:
+        maxLength: 100
+        type: string
+      password:
+        maxLength: 100
+        minLength: 8
+        type: string
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  github_com_satria_newproject_internal_services.UpdateProfileRequest:
+    properties:
+      avatar_url:
+        type: string
+      bio:
+        maxLength: 500
+        type: string
+    type: object
+  github_com_satria_newproject_internal_services.UpdateThreadRequest:
+    properties:
+      content:
+        minLength: 10
+        type: string
+      image_url:
+        type: string
+      title:
+        maxLength: 255
+        minLength: 5
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  github_com_satria_newproject_internal_utils.APIResponse:
+    properties:
+      data: {}
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  github_com_satria_newproject_internal_utils.PaginatedResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+      meta:
+        $ref: '#/definitions/github_com_satria_newproject_internal_utils.PaginationMeta'
+      success:
+        type: boolean
+    type: object
+  github_com_satria_newproject_internal_utils.PaginationMeta:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@socialforum.local
+    name: API Support
+  description: Backend API for social forum with threads, comments, likes, real-time
+    chat, and image uploads.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Social Forum API
+  version: 1.0.0
+paths:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate with email and password
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_satria_newproject_internal_services.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      summary: Login user
+      tags:
+      - Auth
+  /api/v1/auth/logout:
+    post:
+      description: Revoke all refresh tokens for current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Logout user
+      tags:
+      - Auth
+  /api/v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get new access token using refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_satria_newproject_internal_services.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      summary: Refresh access token
+      tags:
+      - Auth
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create account with username, email, and password
+      parameters:
+      - description: Registration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_satria_newproject_internal_services.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      summary: Register new user
+      tags:
+      - Auth
+  /api/v1/comments/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete comment (owner only)
+      parameters:
+      - description: Comment ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete comment
+      tags:
+      - Comments
+  /api/v1/threads:
+    get:
+      consumes:
+      - application/json
+      description: Get paginated list of threads
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.PaginatedResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: List threads
+      tags:
+      - Threads
+    post:
+      consumes:
+      - application/json
+      description: Create a new forum thread
+      parameters:
+      - description: Thread data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_satria_newproject_internal_services.CreateThreadRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Create thread
+      tags:
+      - Threads
+  /api/v1/threads/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete thread (owner only)
+      parameters:
+      - description: Thread ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete thread
+      tags:
+      - Threads
+    get:
+      consumes:
+      - application/json
+      description: Get detailed thread with user info
+      parameters:
+      - description: Thread ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get thread by ID
+      tags:
+      - Threads
+    put:
+      consumes:
+      - application/json
+      description: Update thread (owner only)
+      parameters:
+      - description: Thread ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Thread data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_satria_newproject_internal_services.UpdateThreadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update thread
+      tags:
+      - Threads
+  /api/v1/threads/{id}/chat:
+    get:
+      description: Upgrade to WebSocket for real-time chat in a thread
+      parameters:
+      - description: Thread ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: JWT token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      summary: WebSocket chat
+      tags:
+      - Chat
+  /api/v1/threads/{id}/comments:
+    get:
+      consumes:
+      - application/json
+      description: Get all comments for a thread (with nested replies)
+      parameters:
+      - description: Thread ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get comments
+      tags:
+      - Comments
+    post:
+      consumes:
+      - application/json
+      description: Create comment or nested reply on a thread
+      parameters:
+      - description: Thread ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Comment data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_satria_newproject_internal_services.CreateCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Create comment
+      tags:
+      - Comments
+  /api/v1/threads/{id}/like:
+    post:
+      consumes:
+      - application/json
+      description: Like or unlike a thread (toggle)
+      parameters:
+      - description: Thread ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Toggle like
+      tags:
+      - Likes
+  /api/v1/threads/{id}/messages:
+    get:
+      consumes:
+      - application/json
+      description: Get message history for a thread
+      parameters:
+      - description: Thread ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - default: 50
+        description: Number of messages
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get chat messages
+      tags:
+      - Chat
+  /api/v1/threads/search:
+    get:
+      consumes:
+      - application/json
+      description: Full-text search by title and content
+      parameters:
+      - description: Search keyword
+        in: query
+        name: q
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.PaginatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Search threads
+      tags:
+      - Threads
+  /api/v1/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload image to Cloudinary, returns URL
+      parameters:
+      - description: Image file (jpeg, png, gif, webp, max 5MB)
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload image
+      tags:
+      - Upload
+  /api/v1/users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get public profile of any user
+      parameters:
+      - description: User ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user by ID
+      tags:
+      - Users
+  /api/v1/users/me:
+    get:
+      consumes:
+      - application/json
+      description: Get current user's profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get own profile
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Update bio and avatar URL
+      parameters:
+      - description: Profile data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_satria_newproject_internal_services.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update profile
+      tags:
+      - Users
+  /api/v1/users/me/password:
+    put:
+      consumes:
+      - application/json
+      description: Change current user's password
+      parameters:
+      - description: Password data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_satria_newproject_internal_services.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_satria_newproject_internal_utils.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - Users
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

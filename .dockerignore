@@ -1,0 +1,7 @@
+.git
+.env
+vendor/
+uploads/
+*.md
+planning/
+.gitignore
