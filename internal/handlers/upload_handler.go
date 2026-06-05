@@ -9,10 +9,10 @@ import (
 )
 
 type UploadHandler struct {
-	uploadService *services.UploadService
+	uploadService services.Uploader
 }
 
-func NewUploadHandler(uploadService *services.UploadService) *UploadHandler {
+func NewUploadHandler(uploadService services.Uploader) *UploadHandler {
 	return &UploadHandler{uploadService: uploadService}
 }
 

@@ -110,10 +110,20 @@ func (s *UploadService) DeleteImage(imageURL string) error {
 	return nil
 }
 
-// ImageService interface — biar gak ada nil pointer
+// ImageService interface — for thread delete (Cloudinary cleanup)
 type ImageService interface {
 	DeleteImage(imageURL string) error
 }
+
+// Uploader interface — for upload handler (supports real Cloudinary + no-op)
+type Uploader interface {
+	UploadImage(file multipart.File, header *multipart.FileHeader) (string, error)
+	ImageService
+}
+
+// compile-time check
+var _ Uploader = (*UploadService)(nil)
+var _ Uploader = (*NoOpUploadService)(nil)
 
 // NoOpUploadService is a no-op implementation for when Cloudinary is not configured
 type NoOpUploadService struct{}
@@ -122,8 +132,10 @@ func NewNoOpUploadService() *NoOpUploadService {
 	return &NoOpUploadService{}
 }
 
+var ErrUploadNotConfigured = errors.New("upload not configured: Cloudinary credentials missing")
+
 func (s *NoOpUploadService) UploadImage(file multipart.File, header *multipart.FileHeader) (string, error) {
-	return "", nil
+	return "", ErrUploadNotConfigured
 }
 
 func (s *NoOpUploadService) DeleteImage(imageURL string) error {

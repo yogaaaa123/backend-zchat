@@ -66,17 +66,16 @@ func main() {
 	authService := services.NewAuthService(userRepo, refreshTokenRepo, cfg)
 	userService := services.NewUserService(userRepo)
 
-	var imageSvc services.ImageService
-	uploadSvc, err := services.NewUploadService(cfg)
+	var uploadSvc services.Uploader
+	realUploadSvc, err := services.NewUploadService(cfg)
 	if err != nil {
 		log.Printf("Warning: Cloudinary not configured, using no-op upload: %v", err)
-		imageSvc = services.NewNoOpUploadService()
-		uploadSvc = &services.UploadService{}
+		uploadSvc = services.NewNoOpUploadService()
 	} else {
-		imageSvc = uploadSvc
+		uploadSvc = realUploadSvc
 	}
 
-	threadService := services.NewThreadService(threadRepo, likeRepo, imageSvc)
+	threadService := services.NewThreadService(threadRepo, likeRepo, uploadSvc)
 	commentService := services.NewCommentService(commentRepo)
 	likeService := services.NewLikeService(likeRepo, threadRepo)
 
