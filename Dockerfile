@@ -14,7 +14,8 @@ RUN CGO_ENABLED=0 go build -o /app/server ./cmd/server/main.go
 # Stage 2: Run
 FROM alpine:3.19
 
-RUN addgroup -S app && adduser -S app -G app
+RUN apk add --no-cache ca-certificates && \
+    addgroup -S app && adduser -S app -G app
 
 WORKDIR /app
 
